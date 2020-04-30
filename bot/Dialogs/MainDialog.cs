@@ -20,7 +20,7 @@ namespace Microsoft.BotBuilderSamples.Dialogs
         protected readonly ILogger Logger;
 
         // Dependency injection uses this constructor to instantiate MainDialog
-        public MainDialog(FlightBookingRecognizer luisRecognizer, BookingDialog bookingDialog, ILogger<MainDialog> logger)
+        public MainDialog(FlightBookingRecognizer luisRecognizer, MyNewDialog myNewDialog, BookingDialog bookingDialog, ILogger<MainDialog> logger)
             : base(nameof(MainDialog))
         {
             _luisRecognizer = luisRecognizer;
@@ -77,10 +77,13 @@ namespace Microsoft.BotBuilderSamples.Dialogs
                 break;
 
                 case "end":
+                var liscall = topIntent;
                 var endmsg = "great to serve you";
                 var endmsgs = MessageFactory.Text(endmsg, endmsg, InputHints.IgnoringInput);
                 await stepContext.Context.SendActivityAsync(endmsgs, cancellationToken);
                 break;
+               // return await stepContext.BeginDialogAsync(nameof(MyNewDialog),liscall, cancellationToken);
+                
 
                 default: 
 
