@@ -43,18 +43,19 @@ namespace Microsoft.BotBuilderSamples.Dialogs
         {
             if (!_luisRecognizer.IsConfigured)
             {
+                Console.WriteLine("luis not configured");
                 await stepContext.Context.SendActivityAsync(
                     MessageFactory.Text("NOTE: LUIS is not configured. To enable all capabilities, add 'LuisAppId', 'LuisAPIKey' and 'LuisAPIHostName' to the appsettings.json file.", inputHint: InputHints.IgnoringInput), cancellationToken);
 
                 return await stepContext.NextAsync(null, cancellationToken);
             }
-
+            
             // Use the text provided in FinalStepAsync or the default if it is the first time.
-            var messageText = stepContext.Options?.ToString() ?? "What can I help you with today?\nSay something like \"Book a flight from Paris to Berlin on March 22, 2020\"";
+            var messageText = stepContext.Options?.ToString() ?? "Hi welcome to my sample bot";
             var promptMessage = MessageFactory.Text(messageText, messageText, InputHints.ExpectingInput);
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = promptMessage }, cancellationToken);
         }
-
+        
         private async Task<DialogTurnResult> ActStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             if (!_luisRecognizer.IsConfigured)
@@ -64,38 +65,62 @@ namespace Microsoft.BotBuilderSamples.Dialogs
             }
 
             // Call LUIS and gather any potential booking details. (Note the TurnContext has the response to the prompt.)
-            var luisResult = await _luisRecognizer.RecognizeAsync<FlightBooking>(stepContext.Context, cancellationToken);
-            switch (luisResult.TopIntent().intent)
+            var luisResult = await _luisRecognizer.RecognizeAsync(stepContext.Context, cancellationToken);
+            var topIntent = luisResult.GetTopScoringIntent();
+            
+            switch(topIntent.intent)
             {
-                case FlightBooking.Intent.BookFlight:
-                    await ShowWarningForUnsupportedCities(stepContext.Context, luisResult, cancellationToken);
+                case "welcome":
+                var msg = "hi welcome to bot";
+                var msgs = MessageFactory.Text(msg, msg, InputHints.IgnoringInput);
+                await stepContext.Context.SendActivityAsync(msgs, cancellationToken);
+                break;
 
-                    // Initialize BookingDetails with any entities we may have found in the response.
-                    var bookingDetails = new BookingDetails()
-                    {
-                        // Get destination and origin from the composite entities arrays.
-                        Destination = luisResult.ToEntities.Airport,
-                        Origin = luisResult.FromEntities.Airport,
-                        TravelDate = luisResult.TravelDate,
-                    };
+                case "end":
+                var endmsg = "great to serve you";
+                var endmsgs = MessageFactory.Text(endmsg, endmsg, InputHints.IgnoringInput);
+                await stepContext.Context.SendActivityAsync(endmsgs, cancellationToken);
+                break;
 
-                    // Run the BookingDialog giving it whatever details we have from the LUIS call, it will fill out the remainder.
-                    return await stepContext.BeginDialogAsync(nameof(BookingDialog), bookingDetails, cancellationToken);
+                default: 
 
-                case FlightBooking.Intent.GetWeather:
-                    // We haven't implemented the GetWeatherDialog so we just display a TODO message.
-                    var getWeatherMessageText = "TODO: get weather flow here";
-                    var getWeatherMessage = MessageFactory.Text(getWeatherMessageText, getWeatherMessageText, InputHints.IgnoringInput);
-                    await stepContext.Context.SendActivityAsync(getWeatherMessage, cancellationToken);
-                    break;
-
-                default:
-                    // Catch all for unhandled intents
-                    var didntUnderstandMessageText = $"Sorry, I didn't get that. Please try asking in a different way (intent was {luisResult.TopIntent().intent})";
-                    var didntUnderstandMessage = MessageFactory.Text(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
-                    await stepContext.Context.SendActivityAsync(didntUnderstandMessage, cancellationToken);
-                    break;
+                var didntUnderstandMessageText = $"Sorry, I didn't get that. Please try asking in a different way (intent was {topIntent})";
+                var didntUnderstandMessage = MessageFactory.Text(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
+                await stepContext.Context.SendActivityAsync(didntUnderstandMessage, cancellationToken);
+                break;
             }
+            
+            // switch (luisResult.TopIntent().intent)
+            // {
+            //     case FlightBooking.Intent.BookFlight:
+            //         await ShowWarningForUnsupportedCities(stepContext.Context, luisResult, cancellationToken);
+
+            //         // Initialize BookingDetails with any entities we may have found in the response.
+            //         var bookingDetails = new BookingDetails()
+            //         {
+            //             // Get destination and origin from the composite entities arrays.
+            //             Destination = luisResult.ToEntities.Airport,
+            //             Origin = luisResult.FromEntities.Airport,
+            //             TravelDate = luisResult.TravelDate,
+            //         };
+
+            //         // Run the BookingDialog giving it whatever details we have from the LUIS call, it will fill out the remainder.
+            //         return await stepContext.BeginDialogAsync(nameof(BookingDialog), bookingDetails, cancellationToken);
+
+            //     case FlightBooking.Intent.GetWeather:
+            //         // We haven't implemented the GetWeatherDialog so we just display a TODO message.
+            //         var getWeatherMessageText = "TODO: get weather flow here";
+            //         var getWeatherMessage = MessageFactory.Text(getWeatherMessageText, getWeatherMessageText, InputHints.IgnoringInput);
+            //         await stepContext.Context.SendActivityAsync(getWeatherMessage, cancellationToken);
+            //         break;
+
+            //     default:
+            //         // Catch all for unhandled intents
+            //         var didntUnderstandMessageText = $"Sorry, I didn't get that. Please try asking in a different way (intent was {luisResult.TopIntent().intent})";
+            //         var didntUnderstandMessage = MessageFactory.Text(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
+            //         await stepContext.Context.SendActivityAsync(didntUnderstandMessage, cancellationToken);
+            //         break;
+            // }
 
             return await stepContext.NextAsync(null, cancellationToken);
         }
