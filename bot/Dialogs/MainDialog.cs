@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Bot.Builder.AI.QnA;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -16,14 +17,16 @@ namespace Microsoft.BotBuilderSamples.Dialogs
 {
     public class MainDialog : ComponentDialog
     {
-        private readonly FlightBookingRecognizer _luisRecognizer;
+        // private readonly FlightBookingRecognizer _luisRecognizer;
+        private readonly IBotServices _botServices;
+        private readonly IBotQnA _botQnAService;
         protected readonly ILogger Logger;
 
-        // Dependency injection uses this constructor to instantiate MainDialog
-        public MainDialog(FlightBookingRecognizer luisRecognizer, MyNewDialog myNewDialog, ILogger<MainDialog> logger)
+        public MainDialog(IBotServices botServices,IBotQnA botQnA, MyNewDialog myNewDialog, ILogger<MainDialog> logger)
             : base(nameof(MainDialog))
         {
-            _luisRecognizer = luisRecognizer;
+            _botQnAService = botQnA;
+            _botServices = botServices;
             Logger = logger;
 
             AddDialog(new TextPrompt(nameof(TextPrompt)));
@@ -41,15 +44,6 @@ namespace Microsoft.BotBuilderSamples.Dialogs
 
         private async Task<DialogTurnResult> IntroStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            if (!_luisRecognizer.IsConfigured)
-            {
-                Console.WriteLine("luis not configured");
-                await stepContext.Context.SendActivityAsync(
-                    MessageFactory.Text("NOTE: LUIS is not configured. To enable all capabilities, add 'LuisAppId', 'LuisAPIKey' and 'LuisAPIHostName' to the appsettings.json file.", inputHint: InputHints.IgnoringInput), cancellationToken);
-
-                return await stepContext.NextAsync(null, cancellationToken);
-            }
-            
             // Use the text provided in FinalStepAsync or the default if it is the first time.
             var messageText = stepContext.Options?.ToString() ?? "Hi welcome to my sample bot";
             var promptMessage = MessageFactory.Text(messageText, messageText, InputHints.ExpectingInput);
@@ -58,28 +52,39 @@ namespace Microsoft.BotBuilderSamples.Dialogs
         
         private async Task<DialogTurnResult> ActStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            if (!_luisRecognizer.IsConfigured)
-            {
-                var msg = "Luis is not configured";
-                var msgs = MessageFactory.Text(msg, msg, InputHints.IgnoringInput);
-                await stepContext.Context.SendActivityAsync(msgs, cancellationToken);
-            }
-
             // Call LUIS and gather any potential booking details. (Note the TurnContext has the response to the prompt.)
-            var luisResult = await _luisRecognizer.RecognizeAsync(stepContext.Context, cancellationToken);
-            var topIntent = luisResult.GetTopScoringIntent();
+            //var luisResult = await _luisRecognizer.RecognizeAsync(stepContext.Context, cancellationToken);
+             var recognizerResult = await _botServices.Dispatch.RecognizeAsync(stepContext.Context, cancellationToken);
+            var topIntent = recognizerResult.GetTopScoringIntent();
             
             switch(topIntent.intent)
             {
-                case "welcome":
+                case "com":
                 var msg = "hi welcome to bot";
                 var msgs = MessageFactory.Text(msg, msg, InputHints.IgnoringInput);
                 await stepContext.Context.SendActivityAsync(msgs, cancellationToken);
                 break;
 
-                case "end":
-                var liscall = topIntent;
-                return await stepContext.BeginDialogAsync(nameof(MyNewDialog),liscall, cancellationToken);
+                case "qna":
+                
+                var options = new QnAMakerOptions { Top = 1 };
+                var response = await _botQnAService.SampleQnA.GetAnswersAsync(stepContext.Context, options);
+                if (response != null && response.Length > 0)
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text(response[0].Answer), cancellationToken);
+            }
+            else
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("No QnA Maker answers were found."), cancellationToken);
+            }
+            break;
+                // var liscall = topIntent;
+                // return await stepContext.BeginDialogAsync(nameof(MyNewDialog),liscall, cancellationToken);
+                
+
+                // case "":
+                // await ProcessSampleQnAAsync(turnContext, cancellationToken);
+                // break;
                 
 
                 default: 

@@ -1,0 +1,39 @@
+{
+  "authoringRegion": "westus",
+  "hierarchical": true,
+  "useAllTrainingData": false,
+  "dontReviseUtterance": false,
+  "copyLuisData": true,
+  "normalizeDiacritics": true,
+  "services": [
+    {
+      "intentName": "com",
+      "appId": "8ee50ea2-b5ac-4495-9a72-d7c11a683ca6",
+      "authoringKey": "8910063dbca9420d9ce1b577a56d8d92",
+      "version": "0.1",
+      "region": "westus",
+      "type": "luis",
+      "name": "test",
+      "id": "1"
+    },
+    {
+      "intentName": "qna",
+      "includePrompts": true,
+      "kbId": "32caf420-db0f-4c3e-9081-95fddcbafb03",
+      "subscriptionKey": "bdc001a5c4cc437093c56f12bbc5cfde",
+      "type": "qna",
+      "name": "KunkuQnAKB",
+      "id": "2"
+    }
+  ],
+  "serviceIds": [
+    "1",
+    "2"
+  ],
+  "appId": "c6e0dcad-5c58-4cbe-bf1a-3e4907bd1b0a",
+  "authoringKey": "8910063dbca9420d9ce1b577a56d8d92",
+  "version": "Dispatch",
+  "region": "westus",
+  "type": "dispatch",
+  "name": "Dispatcher"
+}

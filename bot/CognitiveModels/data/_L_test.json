@@ -1,0 +1,56 @@
+{
+  "luis_schema_version": "4.0.0",
+  "versionId": "0.1",
+  "name": "test",
+  "desc": "",
+  "culture": "en-us",
+  "tokenizerVersion": "1.0.0",
+  "intents": [
+    {
+      "name": "end"
+    },
+    {
+      "name": "None"
+    },
+    {
+      "name": "welcome"
+    }
+  ],
+  "entities": [],
+  "composites": [],
+  "closedLists": [],
+  "patternAnyEntities": [],
+  "regex_entities": [],
+  "prebuiltEntities": [],
+  "model_features": [],
+  "regex_features": [],
+  "patterns": [],
+  "utterances": [
+    {
+      "text": "bye",
+      "intent": "end",
+      "entities": []
+    },
+    {
+      "text": "hello",
+      "intent": "welcome",
+      "entities": []
+    },
+    {
+      "text": "hey",
+      "intent": "welcome",
+      "entities": []
+    },
+    {
+      "text": "hi",
+      "intent": "welcome",
+      "entities": []
+    },
+    {
+      "text": "see you soon",
+      "intent": "end",
+      "entities": []
+    }
+  ],
+  "settings": []
+}

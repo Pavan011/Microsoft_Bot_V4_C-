@@ -31,6 +31,12 @@ namespace Microsoft.BotBuilderSamples
             // Create the Conversation state. (Used by the Dialog system itself.)
             services.AddSingleton<ConversationState>();
 
+            // Create the bot services (LUIS, QnA) as a singleton.
+            services.AddSingleton<IBotServices, BotServices>();
+
+            // Create the bot service (QnA) as a singleton.
+            services.AddSingleton<IBotQnA, QnAService>(); 
+
             // Register LUIS recognizer
             services.AddSingleton<FlightBookingRecognizer>();
 

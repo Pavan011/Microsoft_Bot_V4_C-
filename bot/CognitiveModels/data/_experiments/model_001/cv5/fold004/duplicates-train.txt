@@ -1,0 +1,3 @@
+Utterance	Intents
+bye	com, qna
+hello	com, qna

@@ -1,0 +1,4 @@
+No	Intent	Utterance Count	Utterance Average Length	Utterance Maximum Length	Utterance Minimum Length	Utterance Length StdDev
+0	com	5	5	12	2	4.06202
+1	qna	9772	22.89736	81	1	8.78573
+ 	__ALL__	9777	22.88821	81	1	8.79318
