@@ -35,10 +35,7 @@ namespace Microsoft.BotBuilderSamples
             services.AddSingleton<IBotServices, BotServices>();
 
             // Create the bot service (QnA) as a singleton.
-            services.AddSingleton<IBotQnA, QnAService>(); 
-
-            // Register LUIS recognizer
-            services.AddSingleton<FlightBookingRecognizer>();
+            services.AddSingleton<IBotQnA, QnAService>();
 
             // Register the MyNewDialog.
             services.AddSingleton<MyNewDialog>();

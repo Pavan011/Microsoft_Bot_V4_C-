@@ -60,10 +60,8 @@ namespace Microsoft.BotBuilderSamples.Dialogs
             switch(topIntent.intent)
             {
                 case "com":
-                var msg = "hi welcome to bot";
-                var msgs = MessageFactory.Text(msg, msg, InputHints.IgnoringInput);
-                await stepContext.Context.SendActivityAsync(msgs, cancellationToken);
-                break;
+                 var liscall = topIntent;
+                 return await stepContext.BeginDialogAsync(nameof(MyNewDialog),liscall, cancellationToken);
 
                 case "qna":
                 
@@ -71,7 +69,7 @@ namespace Microsoft.BotBuilderSamples.Dialogs
                 var response = await _botQnAService.SampleQnA.GetAnswersAsync(stepContext.Context, options);
                 if (response != null && response.Length > 0)
             {
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text(response[0].Answer), cancellationToken);
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Here is response from QnA --{response[0].Answer}"), cancellationToken);
             }
             else
             {
