@@ -31,17 +31,17 @@ namespace Microsoft.BotBuilderSamples
             // Create the Conversation state. (Used by the Dialog system itself.)
             services.AddSingleton<ConversationState>();
 
-            //  // Register LUIS recognizer
-              services.AddSingleton<FlightBookingRecognizer>();
+            // Register LUIS recognizer
+            services.AddSingleton<FlightBookingRecognizer>();
 
-            //  // Register the BookingDialog.
-              services.AddSingleton<BookingDialog>();
+            // Register the MyNewDialog.
+            services.AddSingleton<MyNewDialog>();
 
-            //  // The MainDialog that will be run by the bot.
-             services.AddSingleton<MainDialog>();
+            // The MainDialog that will be run by the bot.
+            services.AddSingleton<MainDialog>();
 
-              // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-              services.AddTransient<IBot, DialogAndWelcomeBot<MainDialog>>();
+            // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
+            services.AddTransient<IBot, DialogAndWelcomeBot<MainDialog>>();
                 
             
         }

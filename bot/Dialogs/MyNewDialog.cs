@@ -16,7 +16,8 @@ namespace Microsoft.BotBuilderSamples.Dialogs
             AddDialog(new ConfirmPrompt(nameof(ConfirmPrompt)));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
-                DataStepAsync
+                DataStepAsync,
+                sampleStepAsync
             }));
 
             // The initial child Dialog to run.
@@ -25,10 +26,19 @@ namespace Microsoft.BotBuilderSamples.Dialogs
 
          private async Task<DialogTurnResult> DataStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var msg = "you are in new dialog";
+            var msg = "please tell me your name";
             var msgs = MessageFactory.Text(msg, msg, InputHints.IgnoringInput);
-            return await stepContext.EndDialogAsync(msgs, cancellationToken);
+            var promptMessage = MessageFactory.Text(msg, msg, InputHints.ExpectingInput);
+            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = promptMessage }, cancellationToken);
         }
 
+         private async Task<DialogTurnResult> sampleStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            var result = stepContext.Result;
+            var msg = $"thats great end of the dialog yourname is {result}";
+            var msgs = MessageFactory.Text(msg, msg, InputHints.IgnoringInput);
+            await stepContext.Context.SendActivityAsync(msgs, cancellationToken);
+            return await stepContext.EndDialogAsync(null, cancellationToken);
+        }
     }
 }
